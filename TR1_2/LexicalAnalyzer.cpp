@@ -40,7 +40,7 @@ bool validIdentifier(char* str)
 	return true;
 }
 
-bool isOpe(char ch)
+bool isOperator2(char ch)
 {
 	if (ch == ' ' || ch == ',' || ch == ';' ||
 		ch == '(' || ch == ')' || ch == '[' ||
@@ -164,7 +164,7 @@ vector<string> parse(char* str)
 				buff = str[right];
 				strin.push_back(buff);
 			}
-			else if (isOpe(str[right]) == true)
+			else if (isOperator2(str[right]) == true)
 			{
 				buff = str[right];
 				strin.push_back(buff);

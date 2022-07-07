@@ -13,7 +13,7 @@ bool isPunctuator(char ch);
 
 bool validIdentifier(char* str);
 
-bool isOpe(char ch);
+bool isOperator2(char ch);
 
 bool isOperator(char ch);
 

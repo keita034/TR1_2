@@ -8,25 +8,9 @@
 #include"LexicalAnalyzer.h"
 #include<random>
 
-
-
-std::vector<std::string> split(std::string str, std::string separator)
-{
-	if (separator == "") return { str };
-	std::vector<std::string> result;
-	std::string tstr = str + separator;
-	long l = tstr.length(), sl = separator.length();
-	std::string::size_type pos = 0, prev = 0;
-
-	for (; pos < l && (pos = tstr.find(separator, pos)) != std::string::npos; prev = (pos += sl))
-	{
-		result.emplace_back(tstr, prev, pos - prev);
-	}
-	return result;
-}
-
 char ascii = 0;
 
+//変数の置き換え後の文字　1:a 27:Ab
 std::string ASCII()
 {
 	std::string result;
@@ -50,6 +34,7 @@ std::string ASCII()
 	return result;
 }
 
+//数字かどうか
 bool isNumber(const std::string& str)
 {
 	for (char const& c : str)
@@ -59,6 +44,7 @@ bool isNumber(const std::string& str)
 	return true;
 }
 
+//10進数を2進数に
 std::string StrToNum(const std::string& str)
 {
 	std::string result = "0b";
@@ -85,19 +71,7 @@ std::string StrToNum(const std::string& str)
 	return result;
 }
 
-std::string ReplaceString(std::string String1, std::string String2, std::string String3)
-{
-	std::string::size_type  Pos(String1.find(String2));
-
-	while (Pos != std::string::npos)
-	{
-		String1.replace(Pos, String2.length(), String3);
-		Pos = String1.find(String2, Pos + String3.length());
-	}
-
-	return String1;
-}
-
+//変数置き換え
 std::vector<std::string> StringTrans(const std::string& string, const std::vector<std::string>& variable, const std::vector<std::string>& variableTrns)
 {
 	std::vector<std::string> var;
@@ -117,7 +91,7 @@ std::vector<std::string> StringTrans(const std::string& string, const std::vecto
 	return var;
 }
 
-
+//行の最後に意味のない処理を追加
 std::string rndIf()
 {
 	std::random_device seedGen;
@@ -133,9 +107,6 @@ std::string rndIf()
 
 	return str[rand(engine)];
 };
-
-
-
 
 
 int main()
@@ -157,10 +128,13 @@ int main()
 	// 1行分の文字列を入れる変数
 	std::string line;
 
+	//結果
 	std::string code;
 
+	//変数格納
 	std::vector<std::string> variable;
 
+	//置き換え後の変数格納
 	std::vector<std::string> variableTrns;
 
 	//コマンド実行ループ
@@ -171,12 +145,13 @@ int main()
 
 		std::string word;
 
-		std::getline(line_stream, line, '\n');
-		line.erase(std::remove(line.begin(), line.end(), '\t'), line.end());
+		std::getline(line_stream, line, '\n');//改行文字まで取得
 
-		std::vector<std::string> ary = StringTrans(line, variable, variableTrns);
+		line.erase(std::remove(line.begin(), line.end(), '\t'), line.end());//タブ文字削除
 
+		std::vector<std::string> ary = StringTrans(line, variable, variableTrns);//読み取った行を分解
 
+		//空白を削除
 		for (size_t i = 0; i < ary.size(); i++)
 		{
 			if (ary[i] == " " || ary[i].size() == 0)
@@ -185,7 +160,7 @@ int main()
 			}
 		}
 
-		if (ary.size() == 0)
+		if (ary.size() == 0)//データが存在しない
 		{
 
 		}
@@ -201,14 +176,15 @@ int main()
 			}
 			word += "\n";
 		}
-		else if (ary.front() == "int")
+		else if (ary.front() == "int")//変数
 		{
 			//型
 			std::string type = ary[0];
 			type += " ";
 			word += type;
 
-			if (ary.back() != ")" && ary[2] != "[")//変数
+			//通常の変数
+			if (ary.back() != ")" && ary[2] != "[")
 			{
 				variable.push_back(ary[1]);
 				variableTrns.push_back(ASCII());
@@ -235,10 +211,6 @@ int main()
 					}
 
 				}
-				else//それ以外
-				{
-
-				}
 			}
 			else//配列
 			{
@@ -262,7 +234,7 @@ int main()
 
 			}
 		}
-		else if (ary.front() == "for")
+		else if (ary.front() == "for")//for文
 		{
 			if (isType(const_cast<char*>(ary[2].c_str())))
 			{
@@ -290,11 +262,11 @@ int main()
 				word += ary[i];
 			}
 		}
-		else if (ary.front() == "{" && ary.size() == 1 || ary.front() == "}" && ary.size() == 1)
+		else if (ary.front() == "{" && ary.size() == 1 || ary.front() == "}" && ary.size() == 1)//中括弧のみ
 		{
 			word += ary.front();
 		}
-		else if (ary.front() == "}" && ary.size() == 2)
+		else if (ary.front() == "}" && ary.size() == 2)//};の時
 		{
 			for (size_t i = 0; i < ary.size(); i++)
 			{
@@ -314,7 +286,7 @@ int main()
 			}
 
 		}
-		else if (ary.front() == "return")
+		else if (ary.front() == "return")//リターン
 		{
 			ary[0] += " ";
 			for (size_t i = 0; i < ary.size(); i++)
@@ -324,7 +296,7 @@ int main()
 		}
 		else
 		{
-			for (size_t i = 0; i < ary.size(); i++)
+			for (size_t i = 0; i < ary.size(); i++)//それ以外
 			{
 				if (isNumber(ary[i]))//数字かどうか
 				{
@@ -336,7 +308,7 @@ int main()
 		}
 
 
-		if (word.size() != 0 && word.back() == ';'&& ary.front() != "return ")
+		if (word.size() != 0 && word.back() == ';'&& ary.front() != "return ")//行の最後に意味の無い文追加
 		{
 			word += rndIf();
 		}
@@ -345,6 +317,7 @@ int main()
 
 	}
 
+	//吐出し
 	ofstream outputfile("output/main.cpp");
 	outputfile << code;
 	outputfile.close();
